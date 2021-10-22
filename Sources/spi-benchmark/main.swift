@@ -33,6 +33,8 @@ struct Repeat: ParsableCommand {
         }
 
         do {
+            var runTimes = [Double]()
+
             for i in 0..<count {
                 var xcodeLog = ""
                 let echo = echo
@@ -52,11 +54,14 @@ struct Repeat: ParsableCommand {
                     errorHandle: pipe.fileHandleForWriting
                 )
 
-                print(xcodeLog)
                 if let totalTime = Parser.totalTime.parse(xcodeLog[...]).output {
                     print("Run time: \(totalTime)")
+                    runTimes.append(totalTime)
                 }
             }
+
+            print("Run Times")
+            print(runTimes.map { "\($0)" }.joined(separator: ", "))
         }
 
         print("Done.")
