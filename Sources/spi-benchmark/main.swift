@@ -1,4 +1,5 @@
 import ArgumentParser
+import ShellOut
 
 
 struct Repeat: ParsableCommand {
@@ -8,6 +9,8 @@ struct Repeat: ParsableCommand {
     mutating func run() throws {
         for i in 0..<count {
             print("\(i)\t testing...")
+            let res = try ShellOut.shellOut(to: "ls -l")
+            print(res)
         }
     }
 }
