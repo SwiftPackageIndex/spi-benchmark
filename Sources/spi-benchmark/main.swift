@@ -22,7 +22,7 @@ struct Repeat: ParsableCommand {
     mutating func run() throws {
         do {
             print("Building ...")
-            let pipe = Pipe(logger: { str in
+            let pipe = Pipe(readHandler: { str in
                 guard keep(str) else { return }
                 print(str, terminator: "")
             })
@@ -35,7 +35,7 @@ struct Repeat: ParsableCommand {
         do {
             var xcodeLog = ""
             let echo = echo
-            let pipe = Pipe(logger: { str in
+            let pipe = Pipe(readHandler: { str in
                 guard keep(str) else { return }
                 xcodeLog += str
                 if echo {
