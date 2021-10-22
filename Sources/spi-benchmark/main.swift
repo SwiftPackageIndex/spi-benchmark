@@ -1,20 +1,59 @@
 import ArgumentParser
+import Foundation
 import ShellOut
+
+
+func keep(_ line: String) -> Bool {
+    if line.hasSuffix("Too many levels of symbolic links\n") { return false }
+    return true
+}
 
 
 struct Repeat: ParsableCommand {
     @Option(name: .shortAndLong, help: "Number of test iterations.")
     var count = 1
 
+    @Flag(name: .shortAndLong, help: "Echo output.")
+    var echo = false
+
     @Option(name: .shortAndLong, help: "Working directory where the test is run.")
     var workDir = "."
 
     mutating func run() throws {
-        for i in 0..<count {
-            print("\(i)\t testing...")
-            let res = try ShellOut.shellOut(to: "ls -l", at: workDir)
-            print(res)
+        do {
+            print("Building ...")
+            let pipe = Pipe(logger: { str in
+                guard keep(str) else { return }
+                print(str, terminator: "")
+            })
+            try ShellOut.shellOut(to: "swift build --disable-automatic-resolution",
+                                  at: workDir,
+                                  outputHandle: pipe.fileHandleForWriting,
+                                  errorHandle: pipe.fileHandleForWriting)
         }
+
+        do {
+            var xcodeLog = ""
+            let echo = echo
+            let pipe = Pipe(logger: { str in
+                guard keep(str) else { return }
+                xcodeLog += str
+                if echo {
+                    print(str, terminator: "")
+                }
+            })
+            for i in 0..<count {
+                print("Running iteration: \t\(i) ...")
+                try ShellOut.shellOut(
+                    //  to: "make test-fast",
+                    to: "swift test --disable-automatic-resolution --filter AppTests.ViewUtilsTests.test_listPhrase",
+                    at: workDir,
+                    errorHandle: pipe.fileHandleForWriting
+                )
+            }
+        }
+
+        print("Done.")
     }
 }
 
