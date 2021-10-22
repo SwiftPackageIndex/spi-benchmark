@@ -33,16 +33,17 @@ struct Repeat: ParsableCommand {
         }
 
         do {
-            var xcodeLog = ""
-            let echo = echo
-            let pipe = Pipe(readHandler: { str in
-                guard keep(str) else { return }
-                xcodeLog += str
-                if echo {
-                    print(str, terminator: "")
-                }
-            })
             for i in 0..<count {
+                var xcodeLog = ""
+                let echo = echo
+                let pipe = Pipe(readHandler: { str in
+                    guard keep(str) else { return }
+                    xcodeLog += str
+                    if echo {
+                        print(str, terminator: "")
+                    }
+                })
+
                 print("Running iteration: \t\(i) ...")
                 try ShellOut.shellOut(
                     //  to: "make test-fast",
@@ -50,6 +51,11 @@ struct Repeat: ParsableCommand {
                     at: workDir,
                     errorHandle: pipe.fileHandleForWriting
                 )
+
+                print(xcodeLog)
+                if let totalTime = Parser.totalTime.parse(xcodeLog[...]).output {
+                    print("Run time: \(totalTime)")
+                }
             }
         }
 
