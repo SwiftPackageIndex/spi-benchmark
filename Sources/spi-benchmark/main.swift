@@ -20,52 +20,36 @@ struct Repeat: ParsableCommand {
     var workDir = "."
 
     mutating func run() throws {
-        do {
-            print("Building ...")
+        var runTimes = [Double]()
+
+        for i in 0..<count {
+            var xcodeLog = ""
+            let echo = echo
             let pipe = Pipe(readHandler: { str in
                 guard keep(str) else { return }
-                print(str, terminator: "")
-            })
-            try ShellOut.shellOut(to: "swift build --disable-automatic-resolution",
-                                  at: workDir,
-                                  outputHandle: pipe.fileHandleForWriting,
-                                  errorHandle: pipe.fileHandleForWriting)
-        }
-
-        do {
-            var runTimes = [Double]()
-
-            for i in 0..<count {
-                var xcodeLog = ""
-                let echo = echo
-                let pipe = Pipe(readHandler: { str in
-                    guard keep(str) else { return }
-                    xcodeLog += str
-                    if echo {
-                        print(str, terminator: "")
-                    }
-                })
-
-                print("Running iteration: \t\(i) ...")
-                try ShellOut.shellOut(
-                    to: "make test-fast",
-                    at: workDir,
-                    errorHandle: pipe.fileHandleForWriting
-                )
-
-
-                if let totalTime = Parser.totalTimes.parse(xcodeLog[...])
-                    .output?.last {
-                    print("Run time: \(totalTime)")
-                    runTimes.append(totalTime)
+                xcodeLog += str
+                if echo {
+                    print(str, terminator: "")
                 }
-            }
+            })
 
-            print("Run Times")
-            print(runTimes.map { "\($0)" }.joined(separator: ", "))
+            print("Running iteration: \t\(i) ...")
+            try ShellOut.shellOut(
+                to: "make test-fast",
+                at: workDir,
+                errorHandle: pipe.fileHandleForWriting
+            )
+
+
+            if let totalTime = Parser.totalTimes.parse(xcodeLog[...])
+                .output?.last {
+                print("Run time: \(totalTime)")
+                runTimes.append(totalTime)
+            }
         }
 
-        print("Done.")
+        print("Run Times")
+        print(runTimes.map { "\($0)" }.joined(separator: ", "))
     }
 }
 
