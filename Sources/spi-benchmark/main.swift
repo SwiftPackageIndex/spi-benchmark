@@ -48,13 +48,14 @@ struct Repeat: ParsableCommand {
 
                 print("Running iteration: \t\(i) ...")
                 try ShellOut.shellOut(
-                    //  to: "make test-fast",
-                    to: "swift test --disable-automatic-resolution --filter AppTests.ViewUtilsTests.test_listPhrase",
+                    to: "make test-fast",
                     at: workDir,
                     errorHandle: pipe.fileHandleForWriting
                 )
 
-                if let totalTime = Parser.totalTime.parse(xcodeLog[...]).output {
+
+                if let totalTime = Parser.totalTimes.parse(xcodeLog[...])
+                    .output?.last {
                     print("Run time: \(totalTime)")
                     runTimes.append(totalTime)
                 }
