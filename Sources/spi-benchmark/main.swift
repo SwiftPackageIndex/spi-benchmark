@@ -20,6 +20,8 @@ struct Repeat: ParsableCommand {
     var workDir = "."
 
     mutating func run() throws {
+        print("NB: the first iteration will also build the tests if needed, which might take a moment. This time will not be added to the test run.\n")
+
         var runTimes = [Double]()
 
         for i in 0..<count {
@@ -48,8 +50,10 @@ struct Repeat: ParsableCommand {
             }
         }
 
-        print("Run Times")
-        print(runTimes.map { "\($0)" }.joined(separator: ", "))
+        print()
+        let gitRevision = try ShellOut.shellOut(to: "git describe --tags --always --dirty", at: workDir)
+        print("Revision: \(gitRevision)")
+        print("Run Times: \(runTimes.map { "\($0)" }.joined(separator: ", "))")
     }
 }
 
