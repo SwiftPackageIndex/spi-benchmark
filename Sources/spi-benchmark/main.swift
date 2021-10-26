@@ -34,27 +34,26 @@ struct Repeat: ParsableCommand {
         var runTimes = [Double]()
 
         for i in 0..<count {
-            var xcodeLog = ""
-            let echo = echo
-            let pipe = Pipe(readHandler: { str in
-                guard keep(str) else { return }
-                xcodeLog += str
-                if echo {
-                    print(str, terminator: "")
-                }
-            })
-            let stderr = pipe.fileHandleForReading
-
             print("Running \(mode): \t\(i) ...")
             switch mode {
                 case .build:
-                    try ShellOut.shellOut(to: "swift package clean", at: workDir, errorHandle: stderr)
+                    try ShellOut.shellOut(to: "swift package clean", at: workDir)
                     let start = Date()
-                    try ShellOut.shellOut(to: "make build", at: workDir, errorHandle: stderr)
+                    try ShellOut.shellOut(to: "make build", at: workDir)
                     let elapsed = Date().timeIntervalSince(start)
+                    print("Run time: \(elapsed)")
                     runTimes.append(elapsed)
 
                 case .test:
+                    var xcodeLog = ""
+                    let echo = echo
+                    let pipe = Pipe(readHandler: { str in
+                        guard keep(str) else { return }
+                        xcodeLog += str
+                        if echo { print(str, terminator: "") }
+                    })
+                    let stderr = pipe.fileHandleForReading
+
                     try ShellOut.shellOut(to: "make test-fast", at: workDir, errorHandle: stderr)
 
                     if let totalTime = Parser.totalTimes.parse(xcodeLog[...])
