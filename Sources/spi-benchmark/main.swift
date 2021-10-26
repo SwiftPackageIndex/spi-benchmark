@@ -9,6 +9,12 @@ func keep(_ line: String) -> Bool {
 }
 
 
+enum Mode: String, ExpressibleByArgument {
+    case build
+    case test
+}
+
+
 struct Repeat: ParsableCommand {
     @Option(name: .shortAndLong, help: "Number of test iterations.")
     var count = 1
@@ -18,6 +24,9 @@ struct Repeat: ParsableCommand {
 
     @Option(name: .shortAndLong, help: "Working directory where the test is run.")
     var workDir = "."
+
+    @Option(name: .shortAndLong, help: "Benchmark mode (test or build).")
+    var mode: Mode = .test
 
     mutating func run() throws {
         print("NB: the first iteration will also build the tests if needed, which might take a moment. This time will not be added to the test run.\n")
@@ -34,19 +43,25 @@ struct Repeat: ParsableCommand {
                     print(str, terminator: "")
                 }
             })
+            let stderr = pipe.fileHandleForReading
 
-            print("Running iteration: \t\(i) ...")
-            try ShellOut.shellOut(
-                to: "make test-fast",
-                at: workDir,
-                errorHandle: pipe.fileHandleForWriting
-            )
+            print("Running \(mode): \t\(i) ...")
+            switch mode {
+                case .build:
+                    try ShellOut.shellOut(to: "swift package clean", at: workDir, errorHandle: stderr)
+                    let start = Date()
+                    try ShellOut.shellOut(to: "make build", at: workDir, errorHandle: stderr)
+                    let elapsed = Date().timeIntervalSince(start)
+                    runTimes.append(elapsed)
 
+                case .test:
+                    try ShellOut.shellOut(to: "make test-fast", at: workDir, errorHandle: stderr)
 
-            if let totalTime = Parser.totalTimes.parse(xcodeLog[...])
-                .output?.last {
-                print("Run time: \(totalTime)")
-                runTimes.append(totalTime)
+                    if let totalTime = Parser.totalTimes.parse(xcodeLog[...])
+                        .output?.last {
+                        print("Run time: \(totalTime)")
+                        runTimes.append(totalTime)
+                    }
             }
         }
 
