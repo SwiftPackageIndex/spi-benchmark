@@ -68,7 +68,7 @@ struct Repeat: ParsableCommand {
                         xcodeLog += str
                         if echo { print(str, terminator: "") }
                     })
-                    let stderr = pipe.fileHandleForReading
+                    let stderr = pipe.fileHandleForWriting
 
                     try ShellOut.shellOut(to: "make test-fast", at: workDir, errorHandle: stderr)
 
