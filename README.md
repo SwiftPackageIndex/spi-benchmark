@@ -17,3 +17,33 @@ Run time: 26.512
 Revision: 2.47.9
 Run Times: 27.126, 26.512
 ```
+
+## Benchmarking instructions
+
+- Clone @SwiftPackages at revision 2.47.9 (or whatever revision was indicated for comparison)
+```
+git clone --branch 2.47.9 --depth 1 https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server
+```
+- Make sure building and testing works by running tests
+```
+cd SwiftPackageIndex-Server
+cp .env.testing.template .env.testing
+make db-up-test
+make test-fast
+```
+- Clone the benchmark project
+```
+cd ..
+git clone --branch 0.0.2 https://github.com/SwiftPackageIndex/spi-benchmark
+```
+- Run build benchmark
+```
+swift run spi-benchmark -w ../SwiftPackageIndex-Server -m build --count 20
+```
+- Run test benchmark
+```
+swift run spi-benchmark -w ../SwiftPackageIndex-Server -m test --count 20
+```
+- Report back system spec and the last line `Run times: ...`
+ 
+Thank you :)
