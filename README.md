@@ -35,6 +35,7 @@ make test-fast
 ```
 cd ..
 git clone --branch 0.0.2 https://github.com/SwiftPackageIndex/spi-benchmark
+cd spi-benchmark
 ```
 - Run build benchmark
 ```
