@@ -39,6 +39,7 @@ git clone --branch 2.58.12 --depth 1 https://github.com/SwiftPackageIndex/SwiftP
 ```
 cd SwiftPackageIndex-Server
 cp .env.testing.template .env.testing
+make build-front-end
 make db-up-test
 make test-fast
 ```
