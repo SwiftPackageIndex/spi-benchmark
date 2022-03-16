@@ -66,4 +66,4 @@ swift run spi-benchmark -w ../SwiftPackageIndex-Server -m test --count 20
 
 - Report back system spec and the last line `Run times: ...`
 
-Thank you :)
+You may now delete both folders and also remove the Docker images. Thank you! 😍
