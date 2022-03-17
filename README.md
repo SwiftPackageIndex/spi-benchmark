@@ -1,6 +1,6 @@
 # spi-benchmark
 
-This package comprises a simple tool to run the SwiftPackageIndex-Server tests in a loop, logging the run times. The purpose is to collect both information about a machine's performance as well as the tests themselves, by looking at different revisions.
+This package comprises a tool to run the [SwiftPackageIndex-Server](https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server) tests in a loop, logging the run times. The purpose is to collect both information about a machine's performance as well as the tests themselves, by looking at different revisions.
 
 Example:
 
@@ -20,31 +20,52 @@ Run Times: 27.126, 26.512
 
 ## Benchmarking instructions
 
-- Clone @SwiftPackages at revision 2.47.9 (or whatever revision was indicated for comparison)
+- Install [Docker Desktop for macOS](https://www.docker.com/products/docker-desktop).
+
+- Install Xcode 13.3 and set it to be your default command-line version by running:
+
 ```
-git clone --branch 2.47.9 --depth 1 https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server
+sudo xcode-select -s /Applications/Xcode-13.3.0.app
 ```
+
+- Clone @SwiftPackages at revision 2.58.12 (or whatever revision was indicated for comparison)
+
+```
+git clone --branch 2.58.12 --depth 1 https://github.com/SwiftPackageIndex/SwiftPackageIndex-Server
+```
+
 - Make sure building and testing works by running tests
+
 ```
 cd SwiftPackageIndex-Server
 cp .env.testing.template .env.testing
+make build-front-end
 make db-up-test
 make test-fast
 ```
+
 - Clone the benchmark project
+
 ```
 cd ..
-git clone --branch 0.0.2 https://github.com/SwiftPackageIndex/spi-benchmark
+git clone --branch 0.0.3 https://github.com/SwiftPackageIndex/spi-benchmark
 cd spi-benchmark
 ```
+
 - Run build benchmark
+
 ```
 swift run spi-benchmark -w ../SwiftPackageIndex-Server -m build --count 20
 ```
+
 - Run test benchmark
+
 ```
 swift run spi-benchmark -w ../SwiftPackageIndex-Server -m test --count 20
 ```
+
+**Note:** There is an issue with Docker Desktop that only affects some machines. If you get a crash/test failure while running this command, run the benchmark with fewer iterations. For example, try running `--count 5` four times to get the 20 iterations.
+
 - Report back system spec and the last line `Run times: ...`
- 
-Thank you :)
+
+You may now delete both folders and also remove the Docker images. Thank you! 😍
