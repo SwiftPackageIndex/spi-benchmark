@@ -64,6 +64,8 @@ swift run spi-benchmark -w ../SwiftPackageIndex-Server -m build --count 20
 swift run spi-benchmark -w ../SwiftPackageIndex-Server -m test --count 20
 ```
 
+**Note:** There is an issue with Docker Desktop that only affects some machines. If you get a crash/test failure while running this command, run the benchmark with fewer iterations. For example, try running `--count 5` four times to get the 20 iterations.
+
 - Report back system spec and the last line `Run times: ...`
 
 You may now delete both folders and also remove the Docker images. Thank you! 😍
